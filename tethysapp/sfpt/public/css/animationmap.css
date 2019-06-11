@@ -1,0 +1,54 @@
+#wrapper, #mapDiv {
+    position: relative;
+    padding: 0;
+    margin: 0;
+    height: 100%;
+    width: 100%;
+}
+
+#bottomPanel {
+    left: 50%;
+    margin: 0 auto;
+    margin-left: -500px;
+    position: absolute;
+    bottom: 2.5em;
+}
+
+#timeInfo {
+    border-radius: 4px;
+    border: solid 2px #ccc;
+    background-color: #fff;
+    display: block;
+    padding: 5px;
+    position: relative;
+    text-align: center;
+    width: 1000px;
+    z-index: 99;
+    max-width: 100%;
+}
+
+#info {
+    top: 0px;
+    right: 0px;
+    position: absolute;
+    z-index: 99;
+    opacity: 0.9;
+    background-color: darkgrey;
+    border-bottom-left-radius: 8px;
+    padding: 0px 0px 0px 10px;
+    font-weight: bold;
+}
+
+#loadingImg {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin: -50px 0 0 -10px;
+    z-index: 10;
+}
+
+.esriPopupWrapper {
+    hieght: 200px;
+    width: 200px;
+    /*min-height: ;*/
+}

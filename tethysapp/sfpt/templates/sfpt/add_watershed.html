@@ -1,0 +1,28 @@
+<!--  add_watershed.html -->
+<!--  streamflow_prediction_tool -->
+<!--  Created by Alan D. Snow 2015. -->
+<!--  Copyright © 2015 Alan D Snow. All rights reserved. -->
+<!--  License: BSD 3-Clause -->
+
+{% extends "sfpt/base.html" %}
+
+{% load staticfiles %}
+{% load tethys_gizmos %}
+
+{% block app_content %}
+  <h1>Add a Watershed</h1>
+  <div id="message" class="alert alert-danger hidden" role="alert"></div>
+  {% gizmo text_input watershed_name_input %}
+  {% gizmo text_input subbasin_name_input %}
+  {% gizmo select_input geoserver_select %}
+  <p class="help-block">If your geoserver isn't listed, please <a href="{% url 'sfpt:addgeoserver' %}">add it before continuing</a>.</p>
+  {% gizmo text_input drainage_name_input %}
+  {% gizmo text_input catchment_name_input %}
+  <p class="help-block">Need help putting your data on GeoServer? <a href="{% url 'sfpt:help' %}">Check the help page</a>.</p>
+  {% gizmo button add_button %}
+{% endblock %}
+
+{% block scripts %}
+  {{ block.super }}
+  <script type="text/javascript" src="{% static 'sfpt/js/add_watershed.js' %}"></script>
+{% endblock %}
