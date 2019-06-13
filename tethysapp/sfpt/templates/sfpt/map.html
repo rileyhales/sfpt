@@ -40,41 +40,34 @@
         Zoom in and click on a river segment or search by river ID to view predictions.
     </div>
     <!-- Map Area -->
-    <div id="map" class="map" base-layer-info="{{base_layer_info}}" watershed-layers-info-array="{{watershed_layers_info_array_json}}"
-    watershed-group-info-array="{{watershed_group_info_array_json}}" warning-point-start-folder="{{warning_point_forecast_folder}}"></div>
-    </div>
+    <div id="map" class="map" watersheds="{{ watersheds_information }}"></div>
     <div id="map-view-legend" class="map-view-legend ol-unselectable ol-control">
         <div>
-            <svg width="20" height="20" viewPort="0 0 20 20" version="1.1"
-         xmlns="http://www.w3.org/2000/svg">
+            <svg width="20" height="20" viewPort="0 0 20 20" version="1.1" xmlns="http://www.w3.org/2000/svg">
                 <polyline points="19 1, 1 6, 19 14, 1 19" stroke="blue" fill="transparent" stroke-width="2"/>
             </svg>
             Drainage Line
         </div>
         <div>
-            <svg width="20" height="20" viewPort="0 0 20 20" version="1.1"
-         xmlns="http://www.w3.org/2000/svg">
+            <svg width="20" height="20" viewPort="0 0 20 20" version="1.1" xmlns="http://www.w3.org/2000/svg">
                 <polygon points="1 10, 5 3, 13 1, 19 9, 14 19, 9 13" stroke="black" fill="grey" stroke-width="2"/>
             </svg>
             Watershed Boundary
         </div>
         <div>
-            <svg width="20" height="20" viewPort="0 0 20 20" version="1.1"
-         xmlns="http://www.w3.org/2000/svg">
+            <svg width="20" height="20" viewPort="0 0 20 20" version="1.1" xmlns="http://www.w3.org/2000/svg">
                 <polygon points="0 20, 10 0, 20 20" stroke="purple" fill="purple" stroke-width="2"/>
             </svg>
             20-Year Return Period
         </div>
         <div>
-            <svg width="20" height="20" viewPort="0 0 20 20" version="1.1"
-         xmlns="http://www.w3.org/2000/svg">
+            <svg width="20" height="20" viewPort="0 0 20 20" version="1.1" xmlns="http://www.w3.org/2000/svg">
                 <polygon points="0 20, 10 0, 20 20" stroke="red" fill="red" stroke-width="2"/>
             </svg>
             10-Year Return Period
         </div>
         <div>
-            <svg width="20" height="20" viewPort="0 0 20 20" version="1.1"
-         xmlns="http://www.w3.org/2000/svg">
+            <svg width="20" height="20" viewPort="0 0 20 20" version="1.1" xmlns="http://www.w3.org/2000/svg">
                 <polygon points="0 20, 10 0, 20 20" stroke="yellow" fill="yellow" stroke-width="2"/>
             </svg>
             2-Year Return Period
@@ -269,7 +262,7 @@
 {% endblock %}
 
 {% block app_navigation_items %}
-    <h5>Table of Contents</h5>
+  <li class="title">Table of Contents</li>
     {% if watershed_layers_info_array %}
         {% for watershed_layers_info in watershed_layers_info_array %}
             <li>
@@ -397,112 +390,6 @@
             </li>
         {% endfor %}
 
-    {% elif watershed_group_info_array %}
-        {% for watershed_group_info in watershed_group_info_array %}
-            <li>
-            <div id="watershed_group-{{watershed_group_info.group_id}}-control">
-                <div class="collapse-control">
-                <a class="closeall" data-toggle="collapse" data-target="#watershed_group-{{watershed_group_info.group_id}}-layers">
-                {{watershed_group_info.group_name}}</a>
-                </div>
-                <div id="watershed_group-{{watershed_group_info.group_id}}-layers">
-                    <ul>
-                    <li class="dropdown">
-                        <a href="" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Drainage Line<span class="caret"></span></a>
-                        <ul id="watershed_group-{{watershed_group_info.group_id}}-drainage_line_layer" class="dropdown-menu" role="menu">
-                            <li><a class="zoom-to-layer" href="#">Zoom To Group</a></li>
-                            <li class="divider"></li>
-                            <li><p style="margin-left:20px;"><input class="visible" type="checkbox"> Visibility </p></li>
-                            <li><label style="margin-left:15px;">Opacity</label>
-                                <input style="margin-left:15px; width:80%;" class="opacity" type="range" min="0" max="1" step="0.01">
-                            </li>
-                        </ul>
-                    </li>
-            {% if watershed_group_info.boundary_exists %}
-                    <li class="dropdown">
-                        <a href="" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Boundary<span class="caret"></span></a>
-                        <ul id="watershed_group-{{watershed_group_info.group_id}}-boundary_layer" class="dropdown-menu" role="menu">
-                            <li><a class="zoom-to-layer" href="#">Zoom To Group</a></li>
-                            <li class="divider"></li>
-                            <li><p style="margin-left:20px;"><input class="visible" type="checkbox"> Visibility </p></li>
-                            <li><label style="margin-left:15px;">Opacity</label>
-                                <input style="margin-left:15px; width:80%;" class="opacity" type="range" min="0" max="1" step="0.01">
-                            </li>
-                        </ul>
-                    </li>
-            {% endif %}
-            {% if watershed_group_info.gage_exists %}
-                    <li class="dropdown">
-                        <a href="" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Gage<span class="caret"></span></a>
-                        <ul id="watershed_group-{{watershed_group_info.group_id}}-gage_layer" class="dropdown-menu" role="menu">
-                            <li><a class="zoom-to-layer" href="#">Zoom To Group</a></li>
-                            <li class="divider"></li>
-                            <li><p style="margin-left:20px;"><input class="visible" type="checkbox"> Visibility </p></li>
-                            <li><label style="margin-left:15px;">Opacity</label>
-                                <input style="margin-left:15px; width:80%;" class="opacity" type="range" min="0" max="1" step="0.01">
-                            </li>
-                        </ul>
-                    </li>
-            {% endif %}
-            {% if watershed_group_info.ahps_station_exists %}
-                    <li class="dropdown">
-                        <a href="" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">AHPS Station<span class="caret"></span></a>
-                        <ul id="watershed_group-{{watershed_group_info.group_id}}-ahps_station_layer" class="dropdown-menu" role="menu">
-                            <li><a class="zoom-to-layer" href="#">Zoom To Group</a></li>
-                            <li class="divider"></li>
-                            <li><p style="margin-left:20px;"><input class="visible" type="checkbox"> Visibility </p></li>
-                            <li><label style="margin-left:15px;">Opacity</label>
-                                <input style="margin-left:15px; width:80%;" class="opacity" type="range" min="0" max="1" step="0.01">
-                            </li>
-                        </ul>
-                    </li>
-            {% endif %}
-            {% if watershed_group_info.historical_flood_map_exists %}
-                    <li class="dropdown">
-                        <a href="" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Historical Flood Map<span class="caret"></span></a>
-                        <ul id="watershed_group-{{watershed_group_info.group_id}}-historical_flood_map_layer" class="dropdown-menu" role="menu">
-                            <li><a class="zoom-to-layer" href="#">Zoom To Group</a></li>
-                            <li class="divider"></li>
-                            <li><p style="margin-left:20px;"><input class="visible" type="checkbox"> Visibility </p></li>
-                            <li><label style="margin-left:15px;">Opacity</label>
-                                <input style="margin-left:15px; width:80%;" class="opacity" type="range" min="0" max="1" step="0.01">
-                            </li>
-                        </ul>
-                    </li>
-            {% endif %}
-                    <li class="dropdown hidden boot_tooltip" data-toggle="tooltip" data-placement="top" title="Severe Flood Warning. This was generated based off of the 20-year return period.">
-                        <a href="" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">20-Year Return Period<span class="caret"></span></a>
-                        <ul id="watershed_group-{{watershed_group_info.group_id}}-20_year_warnings" class="dropdown-menu" role="menu">
-                            <li><p style="margin-left:20px;"><input class="visible" type="checkbox"> Visibility </p></li>
-                            <li><label style="margin-left:15px;">Opacity</label>
-                                <input style="margin-left:15px; width:80%;" class="opacity" type="range" min="0" max="1" step="0.01">
-                            </li>
-                        </ul>
-                    </li>
-                    <li class="dropdown hidden boot_tooltip" data-toggle="tooltip" data-placement="top" title="Intermediate Flood Warning. This was generated based off of the 10-year return period.">
-                        <a href="" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">10-Year Return Period<span class="caret"></span></a>
-                        <ul id="watershed_group-{{watershed_group_info.group_id}}-10_year_warnings" class="dropdown-menu" role="menu">
-                            <li><p style="margin-left:20px;"><input class="visible" type="checkbox"> Visibility </p></li>
-                            <li><label style="margin-left:15px;">Opacity</label>
-                                <input style="margin-left:15px; width:80%;" class="opacity" type="range" min="0" max="1" step="0.01">
-                            </li>
-                        </ul>
-                    </li>
-                    <li class="dropdown hidden boot_tooltip" data-toggle="tooltip" data-placement="top" title="Moderate Flood Warning. This was generated based off of the 2-year return period.">
-                        <a href="" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">2-Year Return Period<span class="caret"></span></a>
-                        <ul id="watershed_group-{{watershed_group_info.group_id}}-2_year_warnings" class="dropdown-menu" role="menu">
-                            <li><p style="margin-left:20px;"><input class="visible" type="checkbox"> Visibility </p></li>
-                            <li><label style="margin-left:15px;">Opacity</label>
-                                <input style="margin-left:15px; width:80%;" class="opacity" type="range" min="0" max="1" step="0.01">
-                            </li>
-                        </ul>
-                    </li>
-                    </ul>
-                </div> <!-- div: watershed_group-{{watershed_group_info.group_id}}-layers -->
-            </div><!-- div: watershed_group-{{watershed_group_info.group_id}}-control -->
-            </li>
-        {% endfor %}
-
     {% else %}
         <li class="title"> No Watersheds or Watershed Groups Found ...</li>
     {% endif %}
@@ -510,10 +397,11 @@
 
 {% block styles %}
   {{ block.super }}
-  <link type="text/css" rel="stylesheet" href="{% static 'sfpt/js_packages/openlayers/ol5.3.0.css' %}">
+  <link type="text/css" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/openlayers/4.6.5/ol.css">
+  <link type="text/css" rel="stylesheet" href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css">
 
-  <link type="text/css" rel="stylesheet" href="{% static 'sfpt/js_packages/noUiSlider.8.3.0/nouislider.css' %}">
-  <link type="text/css" rel="stylesheet" href="{% static 'sfpt/js_packages/select2/v3.5.2/select2.css' %}">
+  <link type="text/css" rel="stylesheet" href="{% static 'sfpt/vendors/noUiSlider.8.3.0/nouislider.css' %}">
+  <link type="text/css" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.7/css/select2.min.css">
   <link type="text/css" rel="stylesheet" href="{% static 'sfpt/css/map.css' %}">
 {% endblock %}
 
@@ -522,11 +410,13 @@
 
 {% block scripts %}
   {{ block.super }}
-  <script type="text/javascript" src="{% static 'sfpt/js_packages/openlayers/ol5.3.0.js' %}"></script>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/openlayers/4.6.5/ol.js"></script>
+  <script type="text/javascript" src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/esri-leaflet@2.2.3/dist/esri-leaflet.js"></script>
 
-  <script type="text/javascript" src="{% static 'sfpt/js_packages/wnumb-1.0.2/wNumb.js' %}"></script>
-  <script type="text/javascript" src="{% static 'sfpt/js_packages/noUiSlider.8.3.0/nouislider.js' %}"></script>
-  <script type="text/javascript" src="{% static 'sfpt/js_packages/select2/v3.5.2/select2.js' %}"></script>
+  <script type="text/javascript" src="{% static 'sfpt/vendors/wnumb-1.0.2/wNumb.js' %}"></script>
+  <script type="text/javascript" src="{% static 'sfpt/vendors/noUiSlider.8.3.0/nouislider.js' %}"></script>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.7/js/select2.full.min.js"></script>
   <script type="text/javascript" src="/static/tethys_gizmos/js/plot_view.js"></script>
   <script type="text/javascript" src="{% static 'sfpt/js/waterml_parser.js' %}"></script>
   <script type="text/javascript" src="{% static 'sfpt/js/map.js' %}"></script>

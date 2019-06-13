@@ -1,5 +1,13 @@
 from tethys_sdk.base import TethysAppBase, url_map_maker
-from tethys_sdk.app_settings import PersistentStoreDatabaseSetting, CustomSetting
+from tethys_sdk.app_settings import CustomSetting, SpatialDatasetServiceSetting
+
+#todo General Items
+# get the databases to work
+# make the manage watersheds DB pages work.
+# the map page stuff
+# fix the animation map when chris fixes it
+# talk to michael about the specifics of the new api
+# Integrate this app old app for showing other models? Or not?
 
 
 class Sfpt(TethysAppBase):
@@ -7,14 +15,14 @@ class Sfpt(TethysAppBase):
     Tethys app class for Streamflow Prediction Tool.
     """
 
-    name = 'Streamflow Prediction Tool 2'
+    name = 'SFPT API Interface'
     index = 'sfpt:home'
     icon = 'sfpt/images/streams.png'
     package = 'sfpt'
     root_url = 'sfpt'
     color = '#34495e'
-    description = 'A visualization tool for 15-day streamflow predictions based on the MERIT DEM, ECMWF ' \
-                  'runoff forecasts, the RAPID routing method and historical ERA Interim Data.'
+    description = 'A tool for viewing 15-day streamflow predictions, available by API, based on the MERIT DEM, ECMWF ' \
+                  'runoff forecasts, the RAPID routing method, and historical ERA Interim Data.'
     tags = ''
     enable_feedback = False
     feedback_emails = []
@@ -87,25 +95,28 @@ class Sfpt(TethysAppBase):
 
         return url_maps
 
-    def persistent_store_settings(self):
-        """
-        Define Persistent Store Settings.
-        """
-        return PersistentStoreDatabaseSetting(
-                name='sfpt_db',
-                description='Database of sfpt regions, layer sources, metadata',
-                initializer='sfpt.model.init_sfpt_db',
-                required=True
-            ),
-
     def custom_settings(self):
+        """
+        Define Custom Settings
+        """
         custom_settings = (
             CustomSetting(
-                name='Geoserver Workspace URL',
+                name='geoserver_workspace',
                 type=CustomSetting.TYPE_STRING,
-                description="URL of the workspace on geoserver with the watershed and drainage line shapefiles for "
-                            "this app. (e.g. https://tethys.byu.edu/geoserver/gldas/ows).",
+                description='The name workspace that contains the sfpt drainage lines and catchments on the GeoServer '
+                            'that you specified in Spatial Dataset Service Settings',
                 required=True,
-            ),
+            )
         )
         return custom_settings
+
+    def spatial_dataset_service_settings(self):
+        """
+        Define Spatial Dataset Service Settings (Geoserver)
+        """
+        return SpatialDatasetServiceSetting(
+            name='geoserver_name',
+            description='GeoServer that will serve the spatial data services for the app',
+            engine=SpatialDatasetServiceSetting.GEOSERVER,
+            required=True,
+        )

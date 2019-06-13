@@ -13,7 +13,8 @@ class Watershed(Base):
     __tablename__ = 'watersheds'
 
     # Columns
-    name = Column(Integer, primary_key=True)
+    id = Column(Integer, primary_key=True)
+    name = Column(String)
     subbasin = Column(String)
     geoserver = Column(String)
     drainage_name = Column(String)
@@ -71,7 +72,7 @@ def new_geoserver(id, name, url, username, password):
     """
     Persist a new global watershed
     """
-    # create a new record (instance of the Watershed Class)
+    # create a new record (instance of the GeoServer Class)
     geoserver = GeoServer(
         id=id,
         name=name,
