@@ -271,93 +271,9 @@
   </div>
 
   <div id="mouse-position" class="well well-sm" style="text-align: center"></div>
-{##}
-{#  {% if watersheds_info %}#}
-{#    {% for watershed in watersheds_info %}#}
-{#      <li>#}
-{#        <div id="{{ watershed.name }}-control">#}
-{#          <div class="collapse-control">#}
-{#            <a class="closeall" data-toggle="collapse"#}
-{#               data-target="#{{ watershed.name }}-{{ watershed.delineation }}-layers">#}
-{#              {{ watershed.title }}</a>#}
-{#          </div>#}
-{#          <div id="{{ watershed.name }}-{{ watershed.delineation }}-layers" class="collapse in">#}
-{#            <ul>#}
-{#              {% if "drainage_line" in watershed %}#}
-{#                <li class="dropdown">#}
-{#                  <a href="" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Drainage#}
-{#                    Line<span class="caret"></span></a>#}
-{#                  <ul id="layer-{{ watershed.id }}-drainage_line" class="dropdown-menu" role="menu">#}
-{#                    <li><a class="zoom-to-layer" href="#">Zoom To Layer</a></li>#}
-{#                    <li class="divider"></li>#}
-{#                    <li><p style="margin-left:20px;"><input class="visible" type="checkbox"> Visibility </p></li>#}
-{#                    <li><label style="margin-left:15px;">Opacity</label>#}
-{#                      <input style="margin-left:15px; width:80%;" class="opacity" type="range" min="0" max="1" step="0.01">#}
-{#                    </li>#}
-{#                  </ul>#}
-{#                </li>#}
-{#              {% endif %}#}
-{#              {% if "boundary" in watershed %}#}
-{#                <li class="dropdown">#}
-{#                  <a href="" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Boundary<span#}
-{#                          class="caret"></span></a>#}
-{#                  <ul id="layer-{{ watershed.id }}-boundary" class="dropdown-menu" role="menu">#}
-{#                    <li><a class="zoom-to-layer" href="#">Zoom To Layer</a></li>#}
-{#                    <li class="divider"></li>#}
-{#                    <li><p style="margin-left:20px;"><input class="visible" type="checkbox"> Visibility </p></li>#}
-{#                    <li><label style="margin-left:15px;">Opacity</label>#}
-{#                      <input style="margin-left:15px; width:80%;" class="opacity" type="range" min="0" max="1"#}
-{#                             step="0.01">#}
-{#                    </li>#}
-{#                  </ul>#}
-{#                </li>#}
-{#              {% endif %}#}
-{##}
-{#              <li class="dropdown hidden boot_tooltip" data-toggle="tooltip" data-placement="top"#}
-{#                  title="Severe Flood Warning. This was generated based off of the 20-year return period.">#}
-{#                <a href="" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">20-Year#}
-{#                  Return Period<span class="caret"></span></a>#}
-{#                <ul id="layer-{{ watershed.id }}-20_year_warnings" class="dropdown-menu" role="menu">#}
-{#                  <li><p style="margin-left:20px;"><input class="visible" type="checkbox"> Visibility </p></li>#}
-{#                  <li><label style="margin-left:15px;">Opacity</label>#}
-{#                    <input style="margin-left:15px; width:80%;" class="opacity" type="range" min="0" max="1"#}
-{#                           step="0.01">#}
-{#                  </li>#}
-{#                </ul>#}
-{#              </li>#}
-{#              <li class="dropdown hidden boot_tooltip" data-toggle="tooltip" data-placement="top"#}
-{#                  title="Intermediate Flood Warning. This was generated based off of the 10-year return period.">#}
-{#                <a href="" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">10-Year#}
-{#                  Return Period<span class="caret"></span></a>#}
-{#                <ul id="layer-{{ watershed.id }}-10_year_warnings" class="dropdown-menu" role="menu">#}
-{#                  <li><p style="margin-left:20px;"><input class="visible" type="checkbox"> Visibility </p></li>#}
-{#                  <li><label style="margin-left:15px;">Opacity</label>#}
-{#                    <input style="margin-left:15px; width:80%;" class="opacity" type="range" min="0" max="1"#}
-{#                           step="0.01">#}
-{#                  </li>#}
-{#                </ul>#}
-{#              </li>#}
-{#              <li class="dropdown hidden boot_tooltip" data-toggle="tooltip" data-placement="top"#}
-{#                  title="Moderate Flood Warning. This was generated based off of the 2-year return period.">#}
-{#                <a href="" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">2-Year#}
-{#                  Return Period<span class="caret"></span></a>#}
-{#                <ul id="layer-{{ watershed.id }}-2_year_warnings" class="dropdown-menu" role="menu">#}
-{#                  <li><p style="margin-left:20px;"><input class="visible" type="checkbox"> Visibility </p></li>#}
-{#                  <li><label style="margin-left:15px;">Opacity</label>#}
-{#                    <input style="margin-left:15px; width:80%;" class="opacity" type="range" min="0" max="1"#}
-{#                           step="0.01">#}
-{#                  </li>#}
-{#                </ul>#}
-{#              </li>#}
-{#            </ul>#}
-{#          </div> <!-- div: {{watershed.name}}-{{watershed.delineation}}-layers -->#}
-{#        </div><!-- div: {{watershed.name}}-{{watershed.delineation}}-control -->#}
-{#      </li>#}
-{#    {% endfor %}#}
-{##}
-{#  {% else %}#}
-{#    <li class="title"> No Watersheds or Watershed Groups Found ...</li>#}
-{#  {% endif %}#}
+
+  <li>Put the box for the user to put in a lat/lon and zoom the map to the point/get forecast for the nearest river</li>
+  <li>Put the styling controls here maybe? if we want to have those?</li>
 {% endblock %}
 
 {% block styles %}
@@ -366,8 +282,7 @@
   <link type="text/css" rel="stylesheet" href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css">
 
   <link type="text/css" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/13.1.5/nouislider.min.css">
-  <link type="text/css" rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.7/css/select2.min.css">
+  <link type="text/css" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.7/css/select2.min.css">
   <link type="text/css" rel="stylesheet" href="{% static 'sfpt/css/map.css' %}">
 {% endblock %}
 

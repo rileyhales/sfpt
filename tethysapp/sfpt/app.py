@@ -1,14 +1,13 @@
-from tethys_sdk.base import TethysAppBase, url_map_maker
 from tethys_sdk.app_settings import CustomSetting, SpatialDatasetServiceSetting
+from tethys_sdk.base import TethysAppBase, url_map_maker
 
 
-# todo General Items
-# the map page stuff
+#todo General Items
 # fix the animation map when chris fixes it
 # talk to michael about the specifics of the new api
-# Integrate this app old app for showing other models? Or not?
-
-# todo write documentation explaining that you must use the naming conventions listed for the layers on geoserver
+# Integrate this app with old app for showing other models? Or not, too much work? i say let this app be standalone
+# write documentation explaining that you must use the naming conventions listed for the layers on geoserver
+# add the rest of the global regions just for funsies
 
 
 class Sfpt(TethysAppBase):
@@ -52,28 +51,6 @@ class Sfpt(TethysAppBase):
                 controller='sfpt.controllers.map'
             ),
 
-            # data management pages
-            UrlMap(
-                name='addwatershed',
-                url='sfpt/addwatershed',
-                controller='sfpt.controllers.addwatershed'
-            ),
-            UrlMap(
-                name='addgeoserver',
-                url='sfpt/addgeoserver',
-                controller='sfpt.controllers.addgeoserver'
-            ),
-            UrlMap(
-                name='managewatersheds',
-                url='sfpt/managewatersheds',
-                controller='sfpt.controllers.managewatersheds'
-            ),
-            UrlMap(
-                name='managegeoservers',
-                url='sfpt/managegeoservers',
-                controller='sfpt.controllers.managegeoservers'
-            ),
-
             # pages for the references in the app
             UrlMap(
                 name='publications',
@@ -104,7 +81,7 @@ class Sfpt(TethysAppBase):
             CustomSetting(
                 name='geoserver_workspace',
                 type=CustomSetting.TYPE_STRING,
-                description='The name of the workspace that contains the sfpt drainage lines and catchments on the '
+                description='The name of the workspace that contains the SFPT-API drainage lines and catchments on the '
                             'GeoServer that you specified in Spatial Dataset Service Settings',
                 required=True,
             ),
