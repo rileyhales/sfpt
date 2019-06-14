@@ -16,20 +16,18 @@
   <li class="title">App Navigation</li>
   {% url 'sfpt:home' as home %}
   {% url 'sfpt:animation' as animation %}
-  {% url 'sfpt:map' as map %}
-  <li class="{% if request.path == home %}active{% endif %}"><a href="{{ home }}">Home</a></li>
-  <li class="{% if request.path == animation %}active{% endif %}"><a href="{{ animation }}">Animation</a></li>
-  <li class="{% if request.path == map %}active{% endif %}"><a href="{{ map }}">Map</a></li>
+  <li class="{% if request.path == home %}active{% endif %}"><a href="{{ home }}">Watershed Map Viewer</a></li>
+  <li class="{% if request.path == animation %}active{% endif %}"><a href="{{ animation }}">Streamflow Animation</a></li>
 
-  <li class="title">Manage Data</li>
-  {% url 'sfpt:addwatershed' as addwatershed %}
-  {% url 'sfpt:addgeoserver' as addgeoserver %}
-  {% url 'sfpt:managewatersheds' as managewatersheds %}
-  {% url 'sfpt:managegeoservers' as managegeoservers %}
-  <li class="{% if request.path == addwatershed %}active{% endif %}"><a href="{{ addwatershed }}">Add Watershed</a></li>
-  <li class="{% if request.path == addgeoserver %}active{% endif %}"><a href="{{ addgeoserver }}">Add Geoserver</a></li>
-  <li class="{% if request.path == managewatersheds %}active{% endif %}"><a href="{{ managewatersheds }}">Manage Watersheds</a></li>
-  <li class="{% if request.path == managegeoservers %}active{% endif %}"><a href="{{ managegeoservers }}">Manage Geoservers</a></li>
+{#  <li class="title">Manage Data</li>#}
+{#  {% url 'sfpt:addwatershed' as addwatershed %}#}
+{#  {% url 'sfpt:addgeoserver' as addgeoserver %}#}
+{#  {% url 'sfpt:managewatersheds' as managewatersheds %}#}
+{#  {% url 'sfpt:managegeoservers' as managegeoservers %}#}
+{#  <li class="{% if request.path == addwatershed %}active{% endif %}"><a href="{{ addwatershed }}">Add Watershed</a></li>#}
+{#  <li class="{% if request.path == addgeoserver %}active{% endif %}"><a href="{{ addgeoserver }}">Add Geoserver</a></li>#}
+{#  <li class="{% if request.path == managewatersheds %}active{% endif %}"><a href="{{ managewatersheds }}">Manage Watersheds</a></li>#}
+{#  <li class="{% if request.path == managegeoservers %}active{% endif %}"><a href="{{ managegeoservers }}">Manage Geoservers</a></li>#}
 
   <li class="title">References</li>
   {% url 'sfpt:publications' as publications %}

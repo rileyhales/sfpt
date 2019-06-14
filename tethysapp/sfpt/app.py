@@ -1,13 +1,14 @@
 from tethys_sdk.base import TethysAppBase, url_map_maker
 from tethys_sdk.app_settings import CustomSetting, SpatialDatasetServiceSetting
 
-#todo General Items
-# get the databases to work
-# make the manage watersheds DB pages work.
+
+# todo General Items
 # the map page stuff
 # fix the animation map when chris fixes it
 # talk to michael about the specifics of the new api
 # Integrate this app old app for showing other models? Or not?
+
+# todo write documentation explaining that you must use the naming conventions listed for the layers on geoserver
 
 
 class Sfpt(TethysAppBase):
@@ -103,10 +104,10 @@ class Sfpt(TethysAppBase):
             CustomSetting(
                 name='geoserver_workspace',
                 type=CustomSetting.TYPE_STRING,
-                description='The name workspace that contains the sfpt drainage lines and catchments on the GeoServer '
-                            'that you specified in Spatial Dataset Service Settings',
+                description='The name of the workspace that contains the sfpt drainage lines and catchments on the '
+                            'GeoServer that you specified in Spatial Dataset Service Settings',
                 required=True,
-            )
+            ),
         )
         return custom_settings
 
@@ -114,9 +115,12 @@ class Sfpt(TethysAppBase):
         """
         Define Spatial Dataset Service Settings (Geoserver)
         """
-        return SpatialDatasetServiceSetting(
-            name='geoserver_name',
-            description='GeoServer that will serve the spatial data services for the app',
-            engine=SpatialDatasetServiceSetting.GEOSERVER,
-            required=True,
+        sds_settings = (
+            SpatialDatasetServiceSetting(
+                name='geoserver_name',
+                description='GeoServer that will serve the spatial data services for the app',
+                engine=SpatialDatasetServiceSetting.GEOSERVER,
+                required=True,
+            ),
         )
+        return sds_settings

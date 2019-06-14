@@ -1,34 +1,64 @@
-import requests
+from .app import Sfpt as App
 
-#todo
-# headers =
-# params =
-# put those usual head info things up here and make a general request object
-# get the customsetting with the workspace name of the files
-# write documentation explaining that you must use the naming conventions listed for the layers on geoserver
+api_token = {'Authorization': 'Token 1adf07d983552705cd86ac681f3717510b6937f6'}
+App.get_custom_setting('geoserver_workspace')
 
-gs_wrksp = ''
+# request_params = {
+#     'watershed_name': 'central_america',
+#     'subbasin_name': 'merit',
+#     'reach_id': comid,
+#     'return_format': 'csv',
+#     'stat_type': 'mean'
+# }
+# resH = requests.get(
+#     'https://tethys.byu.edu/apps/streamflow-prediction-tool/api/GetHistoricData/',
+#     params=request_params,
+#     headers=api_token
+# )
+# resH.content
 
 
-def watersheds_info():
+def get_geoserver():
+    sds = App.get_spatial_dataset_service('geoserver_name', as_wms=True)
+    workspace = App.get_custom_setting('geoserver_workspace')
+    url = sds.replace('wms', workspace + '/wms')
+    return {
+        'workspace': workspace,
+        'url': url,
+    }
+
+
+def watersheds_db():
     return {
         'northamerica': {
             'name': 'North America',
             'delineation': 'API',
-            'gs_drainagelines': gs_wrksp + 'north_america-drainage_lines',
-            'gs_catchments': gs_wrksp + 'north_america-catchments',
+            'gs_drainageline': 'north_america-continental-drainage_line',
+            'gs_catchment': 'north_america-continental-catchment',
         },
-        'centralamerica': {
-            'name': 'Central America',
-            'delineation': 'API',
-            'gs_drainagelines': gs_wrksp + 'central_america-drainage_lines',
-            'gs_catchments': gs_wrksp + 'central_america-catchments',
-        },
+        # 'central_america': {
+        #     'name': 'Central America',
+        #     'delineation': 'API',
+        #     'gs_drainageline': 'central_america-drainage_line',
+        #     'gs_catchment': 'central_america-catchment',
+        # },
         'southamerica': {
             'name': 'South America',
             'delineation': 'API',
-            'gs_drainagelines': gs_wrksp + 'south_america-drainage_lines',
-            'gs_catchments': gs_wrksp + 'south_america-catchments',
+            'gs_drainageline': 'south_america-continental-drainage_line',
+            'gs_catchment': 'south_america-continental-boundary',
+        },
+        # 'europe': {
+        #     'name': 'Europe',
+        #     'delineation': 'API',
+        #     'gs_drainageline': 'europe-continental-drainage_line',
+        #     'gs_catchment': 'europe-continental-boundary',
+        # },
+        'africa': {
+            'name': 'Africa',
+            'delineation': 'API',
+            'gs_drainageline': 'africa-continental-drainage_line',
+            'gs_catchment': 'africa-continental-boundary',
         },
     }
 
@@ -37,5 +67,5 @@ def watershedlist():
     """
     Makes a list of watersheds formatted for a tethys gizmo [(Name (Delineation), designation)]
     """
-    opts = watersheds_info()
+    opts = watersheds_db()
     return [(opts[opt]['name'] + ' (' + opts[opt]['delineation'] + ')', opt) for opt in opts]

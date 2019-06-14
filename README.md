@@ -2,9 +2,7 @@
 
 A tool for predicting streamflow in every stream in the world based on a GIS watershed delineation of [MERIT DEM](http://hydro.iis.u-tokyo.ac.jp/~yamadai/MERIT_DEM/) data, [ECMWF gridded runoff](https://www.ecmwf.int/en/forecasts) predictions, the [RAPID routing method](http://rapid-hub.org/), and the [ERA-Interim](https://www.ecmwf.int/en/forecasts/datasets/reanalysis-datasets/era-interim) historical data.
 
-This tool is built by Riley Hales and is based on the PhD work of Michael Suffront and is inspired by and updates the original application by Alan Snow.
-
-This research was funded by 
+This tool is built by Riley Hales and is based on the work of Michael Suffront and is inspired by and updates the original application by Alan Snow.
 
 ## Notes on the SFPT Workflow (Azure)
 
@@ -32,7 +30,7 @@ home/byuhi
 	            ---> nces_min.nc
 	            ---> nces_average.nc
 	            
-	            These are computed ?????? each day as part of the forecast?
+	            These are computed ?????? each day as part of the forecasting workflow?
 	            ---> returnperiod_2.geojson
 	            ---> returnperiod_10.geojson
 	            ---> returnperiod_20.geojson

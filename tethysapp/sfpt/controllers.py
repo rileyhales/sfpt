@@ -7,7 +7,7 @@ from tethys_sdk.gizmos import SelectInput, ToggleSwitch, TextInput, MessageBox, 
 
 from .functions import get_ecmwf_valid_forecast_folder_list, format_watershed_title, redirect_with_message
 from .model import Watershed, GeoServer
-from .api_tools import watershedlist, watersheds_info
+from .api_tools import watershedlist, watersheds_db, get_geoserver
 
 from .app import Sfpt as App
 
@@ -49,43 +49,32 @@ def map(request):
     # get/check information from AJAX request
     post_info = request.GET
     watershed_ids = post_info.getlist('watershed_select')
+    info = watersheds_db()
+    watersheds_info = []
+    for i in range(len(watershed_ids)):
+        watersheds_info.append(info[watershed_ids[i]])
 
     # if there was no watershed selected, return to home page with warning
     if not watershed_ids:
         msg = "No watershed selected. Please select one then try again"
         return redirect_with_message(request, "..", msg, severity="WARNING")
 
-    watershed_list = []
     available_forecast_dates = []
-
-    # watersheds = session.query(Watershed) \
-    #     .order_by(Watershed.name, Watershed.subbasin) \
-    #     .filter(Watershed.id.in_(watershed_ids)) \
-    #     .all()
-    # session.close()
-
-    watersheds = []
-    
-    for watershed in watersheds:
-        watershed_list.append(
-            ("%s (%s)" % (watershed.watershed_name, watershed.subbasin_name),
-                "%s:%s" % (watershed.watershed_clean_name, watershed.subbasin_clean_name))
-        )
-        # find/check current output datasets
-        # watershed_files_path = os.path.join(path_to_ecmwf_rapid_output,
-        #                                     "{0}-{1}".format(watershed.ecmwf_data_store_watershed_name,
-        #                                                      watershed.ecmwf_data_store_subbasin_name))
-        # if os.path.exists(watershed_files_path):
-        #     available_forecast_dates = available_forecast_dates + \
-        #                                get_ecmwf_valid_forecast_folder_list(watershed_files_path, ".geojson")
-
-    watersheds_information = watersheds_info()
+    watersheds = watershedlist()
 
     # set up the inputs
     watershed_select = SelectInput(
         display_text='Select Watershed',
         name='watershed_select',
-        options=watershed_list
+        options=watersheds
+    )
+    units_toggle_switch = ToggleSwitch(
+        display_text='Units:',
+        name='units-toggle',
+        on_label='Metric',
+        off_label='English',
+        size='mini',
+        initial=True
     )
 
     warning_point_date_select = None
@@ -105,19 +94,9 @@ def map(request):
             options=forecast_date_select_input
         )
 
-    units_toggle_switch = ToggleSwitch(
-        display_text='Units:',
-        name='units-toggle',
-        on_label='Metric',
-        off_label='English',
-        size='mini',
-        initial=True
-    )
-
-    print(watersheds_information)
-
     context = {
-        'watersheds_information': watersheds_information,
+        'watersheds_info': json.dumps(watersheds_info),
+        'geoserver_url': json.dumps(get_geoserver()),
         'warning_point_forecast_folder': warning_point_forecast_folder,
         'watershed_select': watershed_select,
         'warning_point_date_select': warning_point_date_select,
