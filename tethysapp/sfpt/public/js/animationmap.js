@@ -1,18 +1,14 @@
 let map;
-let dates = {highres: [], dates: []}
+let dates = {highres: [], dates: []};
 let values = {highres: [], max: [], mean: [], min: [], std_dev_range_lower: [], std_dev_range_upper: []};
 let returnShapes;
 
 require([
     "esri/map", "esri/layers/ArcGISDynamicMapServiceLayer", "dojo/on", "dojo/ready",
     "dijit/layout/TabContainer", "dojo/dom-construct", "dijit/layout/ContentPane", "esri/dijit/InfoWindow",
-    "esri/InfoTemplate",
-    "esri/TimeExtent", "esri/dijit/Legend", "esri/dijit/TimeSlider", "esri/InfoTemplate", "esri/request", "esri/config",
-    "dojo/_base/array", "dojo/dom", "dojo/domReady!"
-], function (
-    Map, ArcGISDynamicMapServiceLayer, on, ready, TabContainer, domConstruct, ContentPane, InfoWindow, InfoTemplate, TimeExtent, Legend, TimeSlider,
-    InfoTemplate, esriRequest, esriConfig, arrayUtils, dom
-) {
+    "esri/InfoTemplate", "esri/TimeExtent", "esri/dijit/Legend", "esri/dijit/TimeSlider", "esri/InfoTemplate",
+    "esri/request", "esri/config", "dojo/_base/array", "dojo/dom", "dojo/domReady!"
+], function (Map, ArcGISDynamicMapServiceLayer, on, ready, TabContainer, domConstruct, ContentPane, InfoWindow, InfoTemplate, TimeExtent, Legend, TimeSlider, InfoTemplate, esriRequest, esriConfig, arrayUtils, dom) {
 
     esriConfig.defaults.io.corsEnabledServers.push("tethys.byu.edu");
     esriConfig.defaults.io.corsEnabledServers.push("ai4e-arcserver.byu.edu");
@@ -25,26 +21,11 @@ require([
     });
     showLoading;
 
-
-///tab start
-
     let infoWindow = new InfoWindow(null, domConstruct.create("div"));
     infoWindow.startup();
     map.infoWindow.resize(800, 750);
     let infoTemplate = new InfoTemplate();
     infoTemplate.setContent(getWindowContent);
-
-
-///tab end
-
-
-//    let infoTemplate = new InfoTemplate() //creates popup box
-//    map.infoWindow.resize(850, 600);
-//    map.infoWindow.anchor = "ANCHOR_UPPERRIGHT"
-//    map.infoWindow.reposition();
-//    infoTemplate.setTitle("Global Streamflow Forecasting");
-//    infoTemplate.setContent(getstreamflow);
-
 
     function getWindowContent(graphic) {
         infoTemplate.setTitle(graphic.attributes.watershed + " (" + graphic.attributes.subbasin + "): " + graphic.attributes.comid);
@@ -183,8 +164,6 @@ require([
                     Plotly.purge('graph');
                     $('#graph').remove();
                 }
-                ;
-
                 $('div .contentPane').append('<div id="graph"></div>');
                 let allLines = data.split('\n');
                 let headers = allLines[0].split(',');
@@ -322,7 +301,7 @@ require([
                 let return_10 = parseFloat(returnPeriods["ten"]);
                 let return_2 = parseFloat(returnPeriods["two"]);
 
-                let band_alt_max = -9999
+                let band_alt_max = -9999;
 
                 let shapes = [
                     //return 20 band
@@ -366,48 +345,6 @@ require([
                     }];
 
                 passShape(shapes);
-
-                //let annotations = [
-                //// return max
-                //{
-                //    x: datetime_end,
-                //    y: return_max,
-                //    xref: 'x',
-                //    yref: 'y',
-                //    text: 'Max. ({:.1f})'.format(return_max),
-                //    showarrow: False,
-                //    xanchor: 'left'
-                //},
-                //// return 20 band
-                //{
-                //    x: datetime_end,
-                //    y: return_20,
-                //    xref: 'x',
-                //    yref: 'y',
-                //    text: '20-yr ({:.1f})'.format(return_20),
-                //    showarrow: False,
-                //    xanchor: 'left'
-                //},
-                //// return 10 band
-                //{
-                //    x: datetime_end,
-                //    y: return_10,
-                //    xref: 'x',
-                //    yref: 'y',
-                //    text: '10-yr ({:.1f})'.format(return_10),
-                //    showarrow: False,
-                //    xanchor: 'left'
-                //},
-                //// return 2 band
-                //{
-                //    x: datetime_end,
-                //    y: return_2,
-                //    xref: 'x',
-                //    yref: 'y',
-                //    text: '2-yr ({:.1f})'.format(return_2),
-                //    showarrow: False,
-                //    xanchor: 'left'
-                //}];
             }
         })
     }// create boxes for graph
@@ -498,14 +435,8 @@ require([
     map.addLayers([southAsiaLyr, southAmericaLyr, africaLyr, northAmericaLyr, asiaLyr]);
 
     map.on("load", function (evt) {
-
-        //   console.log(northAmericaLyr.getAttributionData())
         let namechange = northAmericaLyr.layerInfos;
-        //    namechange['0'].name="Stream flow";//only works sometimes
-        //  console.log(namechange);
 
-
-//        console.log(northAmericaLyr.layerInfos[0].name)
         northAmericaLyr.name = "name";
         let legend = new Legend({
             map: map,
@@ -528,12 +459,12 @@ require([
         }, dom.byId("timeSliderDiv"));
         map.setTimeSlider(timeSlider);
 
-        let jsonobject = "http://ai4e-arcserver.byu.edu/arcgis/rest/services/global/south_asia/MapServer?f=pjson"
+        let jsonobject = "http://ai4e-arcserver.byu.edu/arcgis/rest/services/global/south_asia/MapServer?f=pjson";
 
 
         $.getJSON(jsonobject, function (data) {
-            textents = data.timeInfo.timeExtent
-            tinterval = data.timeInfo.defaultTimeInterval
+            textents = data.timeInfo.timeExtent;
+            tinterval = data.timeInfo.defaultTimeInterval;
 
             let timeExtent = new TimeExtent();
             timeExtent.startTime = new Date(textents[0]);
@@ -557,16 +488,7 @@ require([
             let timearray = date.split("T");
             date = timearray[0];
             timearray = timearray[1].split(":");
-            /*  if(timearray[0]>=12)
-              {
-                  timearray[0]=timearray[0]-12;
-                  ampm='pm';
-              } else{
-                 timearray[0]=parseInt(timearray[0],10);
-              }
-              if(timearray[0]==0){
-                  timearray[0]=12;
-              }*/
+
             date = date + " " + timearray[0] + ":" + timearray[1]/*+" "+ampm*/;
             dom.byId("slidercap").innerHTML = "<i>" + date + "<\/i>";
         });

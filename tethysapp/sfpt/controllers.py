@@ -41,7 +41,6 @@ def map(request):
     """
     Controller for the map viewer page.
     """
-
     # get/check information from AJAX request
     post_info = request.GET
     watershed_ids = post_info.getlist('watershed_select')
