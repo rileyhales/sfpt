@@ -1,15 +1,11 @@
 import json
-import os
 
-from django.contrib.auth.decorators import login_required, user_passes_test, permission_required
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
-from tethys_sdk.gizmos import SelectInput, ToggleSwitch, TextInput, MessageBox, Button
+from tethys_sdk.gizmos import SelectInput, ToggleSwitch
 
-from .functions import get_ecmwf_valid_forecast_folder_list, format_watershed_title, redirect_with_message
-from .model import Watershed, GeoServer
 from .api_tools import watershedlist, watersheds_db, get_geoserver
-
-from .app import Sfpt as App
+from .utility import redirect_with_message
 
 
 @login_required()
@@ -103,151 +99,6 @@ def map(request):
         'units_toggle_switch': units_toggle_switch,
     }
     return render(request, 'sfpt/map.html', context)
-
-
-@login_required()
-def addwatershed(request):
-    """
-    Controller for the app addwatershed page.
-    """
-    watershed_name_input = TextInput(
-        display_text='Watershed Display Name',
-        name='watershed-name-input',
-        placeholder='e.g.: Magdalena',
-        # icon_append='glyphicon glyphicon-home'
-    )
-
-    subbasin_name_input = TextInput(
-        display_text='Subbasin Display Name',
-        name='subbasin-name-input',
-        placeholder='e.g.: El Banco',
-        # icon_append='glyphicon glyphicon-tree-deciduous'
-    )
-
-    # Query DB for geoservers
-    session_maker = App.get_persistent_store_database('sfpt_db', as_sessionmaker=True)
-    session = session_maker()
-    geoservers = session.query(GeoServer).all()
-    geoserver_list = []
-    for geoserver in geoservers:
-        geoserver_list.append(("%s (%s)" % (geoserver.name, geoserver.url), geoserver.id))
-    session.close()
-
-    geoserver_select = SelectInput(
-        display_text='Which GeoServer will provide the data?',
-        name='geoserver-select',
-        # options=geoserver_list
-        options=geoserver_list
-    )
-
-    drainage_name_input = TextInput(
-        display_text='Name of the GeoServer workspace and Drainage Line layer',
-        name='drainage_name_input',
-        placeholder='e.g.: sfpt_data:europe_drainagelines',
-        # icon_append='glyphicon glyphicon-tree-deciduous'
-    )
-
-    catchment_name_input = TextInput(
-        display_text='Name of the GeoServer workspace and Catchment Polygons layer',
-        name='drainage_name_input',
-        placeholder='e.g.: sfpt_data:europe_catchments',
-        # icon_append='glyphicon glyphicon-tree-deciduous'
-    )
-
-    add_button = Button(
-        display_text='Add Watershed',
-        icon='glyphicon glyphicon-plus',
-        style='success',
-        name='submit-add-watershed',
-        attributes={'id': 'submit-add-watershed'}
-    )
-
-    context = {
-        'watershed_name_input': watershed_name_input,
-        'subbasin_name_input': subbasin_name_input,
-        'geoserver_select': geoserver_select,
-        'drainage_name_input': drainage_name_input,
-        'catchment_name_input': catchment_name_input,
-        'add_button': add_button,
-    }
-
-    return render(request, 'sfpt/add_watershed.html', context)
-
-
-@login_required()
-def addgeoserver(request):
-    """
-    Controller for the addgeoserver page.
-    """
-    geoserver_name_input = TextInput(
-        display_text='GeoServer Name',
-        name='geoserver-name-input',
-        placeholder='e.g.: My GeoServer',
-        icon_append='glyphicon glyphicon-tag'
-    )
-
-    geoserver_url_input = TextInput(
-        display_text='GeoServer Url',
-        name='geoserver-url-input',
-        placeholder='e.g.: http://localhost:8181/geoserver',
-        icon_append='glyphicon glyphicon-cloud-download'
-    )
-
-    geoserver_username_input = TextInput(
-        display_text='GeoServer Username',
-        name='geoserver-username-input',
-        placeholder='e.g.: admin',
-        icon_append='glyphicon glyphicon-user'
-    )
-
-    add_button = Button(
-        display_text='Add GeoServer',
-        icon='glyphicon glyphicon-plus',
-        style='success',
-        name='submit-add-geoserver',
-        attributes={'id': 'submit-add-geoserver'}
-    )
-
-    context = {
-        'geoserver_name_input': geoserver_name_input,
-        'geoserver_url_input': geoserver_url_input,
-        'geoserver_username_input': geoserver_username_input,
-        'add_button': add_button,
-    }
-
-    return render(request, 'sfpt/add_geoserver.html', context)
-
-
-@login_required()
-def managewatersheds(request):
-    """
-    Controller for the managewatersheds page.
-    """
-    edit_modal = MessageBox(
-        name='edit_watershed_modal',
-        title='Edit Watershed',
-        message='Loading ...',
-        dismiss_button='Nevermind',
-        affirmative_button='Save Changes',
-        affirmative_attributes='id=edit_modal_submit',
-        width=500
-    )
-
-    context = {
-        # 'watersheds': get_sorted_watershed_list(),
-        'edit_modal': edit_modal,
-    }
-
-    return render(request, 'sfpt/manage_watersheds.html', context)
-
-
-@login_required()
-def managegeoservers(request):
-    """
-    Controller for the managegeoservers page.
-    """
-    context = {}
-    return render(request, 'sfpt/manage_geoservers.html', context)
 
 
 @login_required()

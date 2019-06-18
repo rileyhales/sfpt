@@ -11,10 +11,11 @@ function map(zoomList) {
 }
 
 const zoomLists = {
-    'all': [3, [20,0]],
+    'all': [3, [20, 0]],
     'North America': [4, [40, -91]],
-    'South America': [4, [-15, -60]],
+    'South America': [4, [-20, -60]],
     'Africa': [4, [5, 21]],
+    'North Asia': [4, [40, 98]],
 };
 
 function basemaps() {
@@ -29,23 +30,8 @@ function basemaps() {
     }
 }
 
-function makeControls() {
-    return L.control.layers(basemapObj, {
-        'GLDAS Layer': layerObj,
-        'Drawing': drawnItems,
-        'Europe': europe,
-        'Asia': asia,
-        'Middle East': middleeast,
-        'North America': northamerica,
-        'Central America': centralamerica,
-        'South America': southamerica,
-        'Africa': africa,
-        'Australia': australia,
-    }).addTo(mapObj);
-}
-
 ////////////////////////////////////////////////////////////////////////  LAYER ADDING FUNCTIONS
-function newWMS(layername) {
+function getWMS(layername) {
     return L.tileLayer.wms(gsURL, {
         version: '1.1.0',
         layers: gsWRKSP + ':' + layername,
@@ -54,43 +40,53 @@ function newWMS(layername) {
         format: 'image/png',
         transparent: true,
         opacity: 1,
-    });
+    })
 }
 
-// todo ajax get the warning points geojson (api) and add to the layers list
-// declare a placeholder layer for all the geojson layers you want to add
-// function layerPopups(feature, layer) {
-//     let region = feature.properties.name;
-//     layer.bindPopup('<a class="btn btn-default" role="button" onclick="getShapeChart(' + "'" + region + "'" + ')">Get timeseries (average) for ' + region + '</a>');
-// }
-// let jsonparams = {
-//     onEachFeature: layerPopups,
-//     style: {color: $("#gjColor").val(), opacity: $("#gjOpacity").val(), weight: $("#gjWeight").val(), fillColor: $("#gjFillColor").val(), fillOpacity: $("#gjFillOpacity").val()}
-// };
-// gets the geojson layers from the API asynchronously, adding when finished??
-// function getGEOJSON(geoserverlayer, leafletlayer) {
-//     let parameters = L.Util.extend({
-//         service: 'WFS',
-//         version: '1.0.0',
-//         request: 'GetFeature',
-//         typeName: 'gldas:' + geoserverlayer,
-//         maxFeatures: 10000,
-//         outputFormat: 'application/json',
-//         parseResponse: 'getJson',
-//         srsName: 'EPSG:4326',
-//         crossOrigin: 'anonymous'
-//     });
-//     $.ajax({
-//         async: true,
-//         jsonp: false,
-//         url: geoserverbase + L.Util.getParamString(parameters),
-//         contentType: 'application/json',
-//         success: function (data) {
-//             leafletlayer.addData(data).addTo(mapObj);
-//         },
-//     });
-// }
+function getWMFS(layername) {
+    return L.tileLayer.WMFS(gsURL, {
+        version: '1.1.0',
+        layers: gsWRKSP + ':' + layername,
+        useCache: true,
+        crossOrigin: false,
+        format: 'image/png',
+        transparent: true,
+        opacity: 1,
+    })
+}
 
+function newMapServer(layername) {
+    return L.esri.tiledMapLayer({
+        url: 'https://sampleserver6.arcgisonline.com/arcgis/rest/services/WorldTimeZones/MapServer',
+        useCache: true,
+        crossOrigin: false,
+        useCors: false,
+    })
+}
+
+function getWFSData(warningarray) {
+    let layername = warningarray[0].replace(' Warning Points', '');
+
+    let url = 'https://tethys.byu.edu/apps/streamflow-prediction-tool/api/GetWarningPoints/';
+    let params = {
+        watershed_name: layername,
+        subbasin_name: 'Continental',
+        return_period: 2,
+    };
+    $.ajax({
+        async: true,
+        beforeSend: function (request) {
+            request.setRequestHeader('Authorization', 'Token 1adf07d983552705cd86ac681f3717510b6937f6');
+        },
+        jsonp: false,
+        url: url + L.Util.getParamString(params),
+        contentType: 'application/json',
+        success: function (data) {
+            console.log(data);
+            warningarray[1].addData(data).addTo(mapObj);
+        },
+    });
+}
 
 ////////////////////////////////////////////////////////////////////////  SETUP THE MAP
 let mapdiv = $("#map");
@@ -106,51 +102,59 @@ if (wtrshd_info.length > 1) {
 }
 let basemapObj = basemaps();
 
-mapObj.on("mousemove", function (event) {
-    $("#mouse-position").html('Lat: ' + event.latlng.lat.toFixed(5) + ', Lon: ' + event.latlng.lng.toFixed(5));
-});
-
-let startzoom;
-
 ////////////////////////////////////////////////////////////////////////  SETUP THE LAYER ARRAYS
+let warningpt_layers = [];
 let drainage_layers = [];
 let catchment_layers = [];
-let warningpt_layers = [];
 for (let i in wtrshd_info) {
-    drainage_layers.push([wtrshd_info[i].name + ' Drainage Lines', newWMS(wtrshd_info[i]['gs_drainageline'])]);
-    catchment_layers.push([wtrshd_info[i].name + ' Catchments', newWMS(wtrshd_info[i]['gs_catchment'])]);
-    warningpt_layers.push([wtrshd_info[i].name + ' Warning Points', L.geoJSON(false, jsonparams)]);
+    warningpt_layers.push([wtrshd_info[i].name + ' Warning Points', L.geoJSON(false, {}).addTo(mapObj)]);
+    drainage_layers.push([wtrshd_info[i].name + ' Drainage Lines', getWMFS(wtrshd_info[i]['gs_drainageline'])]);
+    catchment_layers.push([wtrshd_info[i].name + ' Catchments', getWMFS(wtrshd_info[i]['gs_catchment'])]);
 }
 
-////////////////////////////////////////////////////////////////////////  ADD CATCHMENT LAYERS AND CONTROLS
+////////////////////////////////////////////////////////////////////////  ADD CATCHMENT LAYERS AND THE CONTROLS
 let currentlayers = {};
+for (let i in warningpt_layers) {
+    currentlayers[warningpt_layers[i][0]] = warningpt_layers[i][1];
+    // getWFSData(warningpt_layers[i]);
+}
+
 for (let i in catchment_layers) {
-    console.log(catchment_layers[i]);
     catchment_layers[i][1].addTo(mapObj);
     currentlayers[catchment_layers[i][0]] = catchment_layers[i][1];
 }
 let controlsObj = L.control.layers(basemapObj, currentlayers).addTo(mapObj);
 
-////////////////////////////////////////////////////////////////////////  CHANGE THE MAP BASED ON ZOOM LEVELS
-mapObj.on('zoomstart', function(ev) {
-    startzoom = ev.target.getZoom();
+////////////////////////////////////////////////////////////////////////  MAP EVENT LISTENERS- MOUSEMOVE, CLICK, ZOOM
+let startzoom;
+
+mapObj.on("mousemove", function (event) {
+    $("#mouse-position").html('Lat: ' + event.latlng.lat.toFixed(5) + ', Lon: ' + event.latlng.lng.toFixed(5));
 });
 
-mapObj.on('zoomend', function(ev) {
+mapObj.on('zoomstart', function (ev) {
+    startzoom = ev.target.getZoom();
+});
+mapObj.on('zoomend', function (ev) {
     let currentZoom = ev.target.getZoom();
+    let threshold = 7;
 
     // check for uninteresting cases in zoom changes
-    if(startzoom >= 6 && currentZoom >= 6) {
-        return  // dont change anything if start+end are both over 6
+    if (startzoom >= threshold && currentZoom >= threshold) {
+        return  // dont change anything if start+end are both over threshold
     }
-    if(startzoom < 6 && currentZoom < 6) {
-        return  // dont change anything if start+end are both under 6
+    if (startzoom < threshold && currentZoom < threshold) {
+        return  // dont change anything if start+end are both under threshold
     }
 
     // change the layers based on what kind of zoom change happened
     currentlayers = {};
-    if (currentZoom >= 6) {
-        // started less than 6 and went to more than 6 -> -catchments +drainage
+    for (let i in warningpt_layers) {
+        currentlayers[warningpt_layers[i][0]] = warningpt_layers[i][1];
+    }
+    if (currentZoom >= threshold) {
+        $("#map").css('cursor', 'pointer');
+        // started less than threshold and went to more than threshold -> -catchments +drainage
         for (let i in catchment_layers) {
             controlsObj.removeLayer(catchment_layers[i][1]);
             mapObj.removeLayer(catchment_layers[i][1]);
@@ -162,7 +166,8 @@ mapObj.on('zoomend', function(ev) {
         mapObj.removeControl(controlsObj);
         controlsObj = L.control.layers(basemapObj, currentlayers).addTo(mapObj)
     } else {
-        // started more than 6 and went to less than 6 -> +catchments -drainage
+        $("#map").css('cursor', '');
+        // started more than threshold and went to less than threshold -> +catchments -drainage
         for (let i in catchment_layers) {
             catchment_layers[i][1].addTo(mapObj);
             currentlayers[catchment_layers[i][0]] = catchment_layers[i][1];

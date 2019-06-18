@@ -33,7 +33,6 @@
   </div>
 {% endblock %}
 
-
 {% block app_content %}
   <div id="map" class="map" watersheds="{{ watersheds_info }}" geoserver_url="{{ geoserver_url }}"></div>
 {% endblock %}
@@ -276,22 +275,19 @@
   <li>Put the styling controls here maybe? if we want to have those?</li>
 {% endblock %}
 
+
 {% block styles %}
   {{ block.super }}
-  <link type="text/css" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/openlayers/4.6.5/ol.css">
   <link type="text/css" rel="stylesheet" href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css">
 
   <link type="text/css" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/13.1.5/nouislider.min.css">
   <link type="text/css" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.7/css/select2.min.css">
+
   <link type="text/css" rel="stylesheet" href="{% static 'sfpt/css/map.css' %}">
 {% endblock %}
 
-
-
-
 {% block scripts %}
   {{ block.super }}
-  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/openlayers/4.6.5/ol.js"></script>
   <script type="text/javascript" src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js"></script>
   <script src="https://unpkg.com/esri-leaflet@2.2.3/dist/esri-leaflet.js"></script>
 
@@ -299,5 +295,7 @@
   <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/13.1.5/nouislider.min.js"></script>
   <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.7/js/select2.full.min.js"></script>
   <script type="text/javascript" src="/static/tethys_gizmos/js/plot_view.js"></script>
+
+  <script type="text/javascript" src="{% static 'sfpt/js/leaflet_wmfs.js' %}"></script>
   <script type="text/javascript" src="{% static 'sfpt/js/map.js' %}"></script>
 {% endblock %}

@@ -60,6 +60,12 @@ def watersheds_db():
             'gs_drainageline': 'africa-continental-drainage_line',
             'gs_catchment': 'africa-continental-boundary',
         },
+        'northasia': {
+            'name': 'North Asia',
+            'delineation': 'API',
+            'gs_drainageline': 'asia-north_asia-drainage_line',
+            'gs_catchment': 'asia-north_asia-boundary',
+        },
     }
 
 
