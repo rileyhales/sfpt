@@ -3,11 +3,10 @@ from tethys_sdk.base import TethysAppBase, url_map_maker
 
 
 #todo General Items
-# fix the animation map when chris fixes it
+# get the updated animation code from gio
 # talk to michael about the specifics of the new api
-# Integrate this app with old app for showing other models? Or not, too much work? i say let this app be standalone
 # write documentation explaining that you must use the naming conventions listed for the layers on geoserver
-# add the rest of the global regions just for funsies
+# possibly cache the geojsons in the app workspace for each day so we dont hit the api so frequently (better on user)
 
 
 class Sfpt(TethysAppBase):

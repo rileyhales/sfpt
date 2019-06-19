@@ -67,7 +67,8 @@ L.TileLayer.WMFS = L.TileLayer.WMS.extend({
                     info_format: 'application/json',
                     success: function (data) {
                         if (data.features.length !== 0) {
-                            console.log('You found stream number ' + data.features[0].properties['OBJECTID'])
+                            console.log(data.features[0].properties['COMID']);
+                            getstreamflow(data.features[0].properties['COMID'])
                         } else {
                             console.log('No features where you clicked so you got an error ' + data);
                         }
@@ -117,7 +118,6 @@ function getWarningPoints(layername) {
     let return_periods = [2, 10, 20];
     for (let i in return_periods) {
         let rp = return_periods[i];
-        console.log(rp);
         let params = {
             watershed_name: layername,
             subbasin_name: 'Continental',
@@ -125,9 +125,7 @@ function getWarningPoints(layername) {
         };
         $.ajax({
             async: false,
-            beforeSend: function (request) {
-                request.setRequestHeader('Authorization', 'Token 1adf07d983552705cd86ac681f3717510b6937f6');
-            },
+            headers: {'Authorization': "Token 2d03550b3b32cdfd03a0c876feda690d1d15ad40"},
             url: url + L.Util.getParamString(params),
             contentType: 'application/json',
             success: function (data) {
@@ -159,7 +157,6 @@ function getWarningPoints(layername) {
             },
         });
     }
-    console.log(return_layers);
     return L.layerGroup(return_layers)
 }
 
@@ -254,9 +251,151 @@ mapObj.on('zoomend', function (event) {
     controlsObj = L.control.layers(basemapObj, currentlayers).addTo(mapObj)
 });
 
+////////////////////////////////////////////////////////////////////////  GET CHART DATA BY AJAX
+let dates = {highres: [], dates: []};
+let values = {highres: [], max: [], mean: [], min: [], std_dev_range_lower: [], std_dev_range_upper: []};
+
+function titleCase(str) {
+    str = str.toLowerCase().split('_');
+
+    for (let i = 0; i < str.length; i++) {
+        str[i] = str[i].charAt(0).toUpperCase() + str[i].slice(1);
+    }
+
+    return str.join(' ');
+}
+
+function getstreamflow(comid) {
+    console.log('started with comid ' + comid);
+    $("#chart_modal").modal('show');
+    let watershed = "north_america";
+    let subbasin = "continental";
+    let url = 'https://tethys.byu.edu/apps/streamflow-prediction-tool/api/GetForecast/';
+    let params = {
+        watershed_name: watershed,
+        subbasin_name: subbasin,
+        reach_id: comid,
+        forecast_folder: 'most_recent',
+        return_format: 'csv'
+    };
+    $.ajax({
+        type: 'GET',
+        async: false,
+        url: url + L.Util.getParamString(params),
+        dataType: 'text',
+        contentType: "text/plain",
+        headers: {'Authorization': "Token 2d03550b3b32cdfd03a0c876feda690d1d15ad40"},
+        success: function (data) {
+            if ($('#long-term-chart').length) {
+                Plotly.purge('long-term-chart');
+            }
+
+            let allLines = data.split('\n');
+            let headers = allLines[0].split(',');
+
+            for (let i = 1; i < allLines.length; i++) {
+                let data = allLines[i].split(',');
+
+                if (headers.includes('high_res (m3/s)')) {
+                    dates.highres.push(data[0]);
+                    values.highres.push(data[1]);
+
+                    if (data[2] !== 'nan') {
+                        dates.dates.push(data[0]);
+                        values.max.push(data[2]);
+                        values.mean.push(data[3]);
+                        values.min.push(data[4]);
+                        values.std_dev_range_lower.push(data[5]);
+                        values.std_dev_range_upper.push(data[6]);
+                    }
+                } else {
+                    dates.dates.push(data[0]);
+                    values.max.push(data[1]);
+                    values.mean.push(data[2]);
+                    values.min.push(data[3]);
+                    values.std_dev_range_lower.push(data[4]);
+                    values.std_dev_range_upper.push(data[5]);
+                }
+            }
+        },
+        complete: function () {
+            let mean = {name: 'Mean', x: dates.dates, y: values.mean, mode: "lines", line: {color: 'blue'}};
+
+            let max = {
+                name: 'Max',
+                x: dates.dates,
+                y: values.max,
+                fill: 'tonexty',
+                mode: "lines",
+                line: {color: 'rgb(152, 251, 152)', width: 0}
+            };
+
+            let min = {
+                name: 'Min',
+                x: dates.dates,
+                y: values.min,
+                fill: 'none',
+                mode: "lines",
+                line: {color: 'rgb(152, 251, 152)'}
+            };
+
+            let std_dev_lower = {
+                name: 'Std. Dev. Lower',
+                x: dates.dates,
+                y: values.std_dev_range_lower,
+                fill: 'tonexty',
+                mode: "lines",
+                line: {color: 'rgb(152, 251, 152)', width: 0}
+            };
+
+            let std_dev_upper = {
+                name: 'Std. Dev. Upper',
+                x: dates.dates,
+                y: values.std_dev_range_upper,
+                fill: 'tonexty',
+                mode: "lines",
+                line: {color: 'rgb(152, 251, 152)', width: 0}
+            };
+
+            let data = [min, max, std_dev_lower, std_dev_upper, mean];
+
+            if (values.highres.length > 0) {
+                data.push({
+                    name: 'HRES',
+                    x: dates.highres,
+                    y: values.highres,
+                    mode: "lines",
+                    line: {color: 'black'}
+                });
+            }
+
+            let layout = {
+                title: titleCase(watershed) + ' Forecast<br>Reach ID: ' + comid,
+                xaxis: {title: 'Date'},
+                yaxis: {title: 'Streamflow m3/s', range: [0, Math.max(...values.max) + Math.max(...values.max) / 5]},
+            };
+
+            Plotly.newPlot("long-term-chart", data, layout);
+
+            let index = dates.dates.length - 2;
+            console.log(index);
+            // getreturnperiods(dates.dates[0], dates.dates[index], watershed, subbasin, comid);
+
+            dates.highres = [];
+            dates.dates = [];
+            values.highres = [];
+            values.max = [];
+            values.mean = [];
+            values.min = [];
+            values.std_dev_range_lower = [];
+            values.std_dev_range_upper = [];
+        }
+
+    });
+}
+
 ////////////////////////////////////////////////////////////////////////  THINGS THAT NEED TO BE DONE STILL
 //todo listeners
-// listener for get chart data (from api)
 // get historical data (api)
 // other things in the api? the lat/lon chooser?
 // do we still want the change warning points v time option? how do we do that if they're all from the api? actually how does that work now?

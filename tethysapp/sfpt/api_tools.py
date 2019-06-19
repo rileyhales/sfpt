@@ -75,3 +75,11 @@ def watershedlist():
     """
     opts = watersheds_db()
     return [(opts[opt]['name'] + ' (' + opts[opt]['delineation'] + ')', opt) for opt in opts]
+
+
+def downloadWarningPoints():
+    #todo
+    # check the date of the most recent warning points
+    # delete them and download the most recent ones
+
+    return
