@@ -50,31 +50,57 @@
 }
 
 @-moz-document url-prefix() {
-  fieldset { display: table-cell; }
+    fieldset {
+        display: table-cell;
+    }
 }
 
 .collapse-control a:after {
-    font-family:'Glyphicons Halflings';
-    content:"\e114";
+    font-family: 'Glyphicons Halflings';
+    content: "\e114";
     float: right;
     color: #34495E;
 }
+
 .warning-val {
-	font: 400 12px Arial;
-	color: #888;
-	margin: 15px 0;
+    font: 400 12px Arial;
+    color: #888;
+    margin: 15px 0;
 }
 
 .map-view-legend {
-  bottom: 30px;
-  right: 0;
-  width: 170px;
-  max-height: 90%;
-  overflow-y: auto;
-  margin: 5px;
-  background: rgba(255, 255, 255, 0.8);
-  border: 1px #ddd solid;
+    bottom: 30px;
+    right: 0;
+    width: 170px;
+    max-height: 90%;
+    overflow-y: auto;
+    margin: 5px;
+    background: rgba(255, 255, 255, 0.8);
+    border: 1px #ddd solid;
 }
+
 .map-view-legend:hover {
-  background: rgba(255, 255, 255, 0.9);
+    background: rgba(255, 255, 255, 0.9);
+}
+
+.cluster2yr {
+    width: 40px;
+    height: 40px;
+    background-color: #eaeb00;
+    text-align: center;
+    font-size: 24px;
+}
+.cluster10yr {
+    width: 40px;
+    height: 40px;
+    background-color: #ff1600;
+    text-align: center;
+    font-size: 24px;
+}
+.cluster20yr {
+    width: 40px;
+    height: 40px;
+    background-color: #730280;
+    text-align: center;
+    font-size: 24px;
 }

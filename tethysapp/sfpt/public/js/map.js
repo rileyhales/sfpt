@@ -112,7 +112,17 @@ function getDrainageLines(layername) {
 }
 
 function getWarningPoints(layername, rp) {
-    let clustergroup = L.markerClusterGroup();
+    let clustergroup = L.markerClusterGroup({
+        maxClusterRadius: 40,
+        iconCreateFunction: function (cluster) {
+            return L.divIcon({
+                className: rp === 2 ? 'cluster2yr' :
+                    rp === 10 ? 'cluster10yr' :
+                        rp === 20 ? 'cluster20yr' :
+                            'none'
+            });
+        },
+    });
     let url = 'https://tethys.byu.edu/apps/streamflow-prediction-tool/api/GetWarningPoints/';
     let params = {watershed_name: layername, subbasin_name: 'Continental', return_period: rp,};
     $.ajax({
@@ -125,7 +135,7 @@ function getWarningPoints(layername, rp) {
                 let coords = data.features[point].geometry.coordinates;
                 clustergroup.addLayer(L.circleMarker([coords[1], coords[0]], {
                     weight: 0,
-                    radius: 6,
+                    radius: 10,
                     fill: true,
                     fillColor:
                         rp === 2 ? '#eaeb00' :
@@ -188,7 +198,7 @@ mapObj.on('zoomstart', function (event) {
 });
 mapObj.on('zoomend', function (event) {
     let endzoom = event.target.getZoom();
-    let threshold = 8;
+    let threshold = 7;
     if (startzoom >= threshold && endzoom >= threshold) {
         return  // dont change anything if start+end are both over threshold
     }
