@@ -99,7 +99,6 @@ function getCatchments(layername) {
 }
 
 function getDrainageLines(layername) {
-    // todo experiment with using a vector tile layer here instead of wms for maybe better results. tell gio about it
     return L.tileLayer.WMFS(gsURL, {
         version: '1.1.0',
         layers: gsWRKSP + ':' + layername,
@@ -112,15 +111,18 @@ function getDrainageLines(layername) {
 }
 
 function getWarningPoints(layername, rp) {
+    let cssclass = rp === 2 ? 'cluster2yr' :
+        rp === 10 ? 'cluster10yr' :
+            rp === 20 ? 'cluster20yr' :
+                'none';
+    let fillcolor = rp === 2 ? '#eaeb00' :
+        rp === 10 ? '#ff1600' :
+            rp === 20 ? '#730280' :
+                rgb(0, 0, 0, 0);
     let clustergroup = L.markerClusterGroup({
-        maxClusterRadius: 40,
+        maxClusterRadius: 30,
         iconCreateFunction: function (cluster) {
-            return L.divIcon({
-                className: rp === 2 ? 'cluster2yr' :
-                    rp === 10 ? 'cluster10yr' :
-                        rp === 20 ? 'cluster20yr' :
-                            'none'
-            });
+            return L.divIcon({className: cssclass});
         },
     });
     let url = 'https://tethys.byu.edu/apps/streamflow-prediction-tool/api/GetWarningPoints/';
@@ -135,17 +137,13 @@ function getWarningPoints(layername, rp) {
                 let coords = data.features[point].geometry.coordinates;
                 clustergroup.addLayer(L.circleMarker([coords[1], coords[0]], {
                     weight: 0,
-                    radius: 10,
+                    radius: 8,
                     fill: true,
-                    fillColor:
-                        rp === 2 ? '#eaeb00' :
-                            rp === 10 ? '#ff1600' :
-                                rp === 20 ? '#730280' :
-                                    rgb(0, 0, 0, 0),
+                    fillColor: fillcolor,
                     fillOpacity: 1,
-                }));
+                }))
             }
-        },
+        }
     });
     return clustergroup
 }

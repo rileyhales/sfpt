@@ -1,15 +1,8 @@
 {% extends "tethys_apps/app_base.html" %}
 
 {% load staticfiles %}
-
 {% block title %}{{ tethys_app.name }}{% endblock %}
-
-{% block app_icon %}
-  {# The path you provided in your app.py is accessible through the tethys_app.icon context variable #}
-  <img src="{% static tethys_app.icon %}">
-{% endblock %}
-
-{# The name you provided in your app.py is accessible through the tethys_app.name context variable #}
+{% block app_icon %}<img src="{% static tethys_app.icon %}">{% endblock %}
 {% block app_title %}{{ tethys_app.name }}{% endblock %}
 
 {% block app_navigation_items %}
@@ -19,16 +12,6 @@
   <li class="{% if request.path == home %}active{% endif %}"><a href="{{ home }}">Watershed Map Viewer</a></li>
   <li class="{% if request.path == animation %}active{% endif %}"><a href="{{ animation }}">Streamflow Animation</a></li>
 
-{#  <li class="title">Manage Data</li>#}
-{#  {% url 'sfpt:addwatershed' as addwatershed %}#}
-{#  {% url 'sfpt:addgeoserver' as addgeoserver %}#}
-{#  {% url 'sfpt:managewatersheds' as managewatersheds %}#}
-{#  {% url 'sfpt:managegeoservers' as managegeoservers %}#}
-{#  <li class="{% if request.path == addwatershed %}active{% endif %}"><a href="{{ addwatershed }}">Add Watershed</a></li>#}
-{#  <li class="{% if request.path == addgeoserver %}active{% endif %}"><a href="{{ addgeoserver }}">Add Geoserver</a></li>#}
-{#  <li class="{% if request.path == managewatersheds %}active{% endif %}"><a href="{{ managewatersheds }}">Manage Watersheds</a></li>#}
-{#  <li class="{% if request.path == managegeoservers %}active{% endif %}"><a href="{{ managegeoservers }}">Manage Geoservers</a></li>#}
-
   <li class="title">References</li>
   {% url 'sfpt:publications' as publications %}
   {% url 'sfpt:code' as code %}
@@ -36,8 +19,6 @@
   <li class="{% if request.path == publications %}active{% endif %}"><a href="{{ publications }}">Publications</a></li>
   <li class="{% if request.path == code %}active{% endif %}"><a href="{{ code }}">View Source Code</a></li>
   <li class="{% if request.path == help %}active{% endif %}"><a href="{{ help }}">Help Page</a></li>
-
-{#  <li class="separator"></li>#}
 {% endblock %}
 
 {% block app_content %}
@@ -48,7 +29,6 @@
 
 {% block content_dependent_styles %}
   {{ block.super }}
-  <link rel="stylesheet" href="{% static 'sfpt/css/main.css' %}"/>
 {% endblock %}
 
 {% block scripts %}

@@ -1,9 +1,6 @@
 {% extends "sfpt/base.html" %}
 {% load tethys_gizmos %}
 
-{% block header_buttons %}
-{% endblock %}
-
 {% block app_content %}
   <h1>Select a Watershed</h1>
   <form id="watershedForm" action="{% url 'sfpt:map' %}" method="get">
@@ -15,10 +12,4 @@
       </button>
     </div>
   </form>
-{% endblock %}
-
-{% block after_app_content %}
-{% endblock %}
-
-{% block app_actions %}
 {% endblock %}
