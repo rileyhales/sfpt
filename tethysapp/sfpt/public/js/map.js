@@ -3,24 +3,24 @@ function map(zoomList) {
     return L.map('map', {
         zoom: zoomList[0],
         minZoom: 3,
+        maxZoom: 10,
         boxZoom: true,
-        maxBounds: L.latLngBounds(L.latLng(-100.0, -270.0), L.latLng(100.0, 270.0)),
-        center: zoomList[1],
+        maxBounds: zoomList[1],
+        center: zoomList[2],
     })
 }
 
 const zoomLists = {
-    'all': [3, [20, 0]],
-    'North America': [4, [40, -91]],
-    'South America': [4, [-20, -60]],
-    'Africa': [4, [5, 21]],
-    'North Asia': [4, [40, 98]],
+    'all': [3, L.latLngBounds(L.latLng(-100, -270), L.latLng(100, 270)), [20, 0]],
+    'North America': [4, L.latLngBounds(L.latLng(20, -140), L.latLng(60, -45)), [40, -95]],
+    'South America': [4, L.latLngBounds(L.latLng(-100, -270), L.latLng(100, 270)), [-20, -60]], // todo SA zoom
+    'Africa': [4, L.latLngBounds(L.latLng(-40, -30), L.latLng(40, 60)), [0, 21]],
+    'North Asia': [4, L.latLngBounds(L.latLng(-100, -270), L.latLng(100, 270)), [40, 98]], // todo north asia zoom
 };
 
 function basemaps() {
     return {
         "ESRI Terrain": L.layerGroup([L.esri.basemapLayer('Terrain'), L.esri.basemapLayer('TerrainLabels')]).addTo(mapObj),
-        "ESRI Imagery": L.layerGroup([L.esri.basemapLayer('Imagery'), L.esri.basemapLayer('ImageryLabels')]),
         "ESRI Topographic": L.esri.basemapLayer('Topographic'),
         "ESRI Grey": L.esri.basemapLayer('Gray'),
     }
@@ -67,7 +67,7 @@ L.TileLayer.WMFS = L.TileLayer.WMS.extend({
                     info_format: 'application/json',
                     success: function (data) {
                         if (data.features.length !== 0) {
-                            console.log(data.features[0].properties['COMID']);
+                            $("#chart_modal").modal('show');
                             getstreamflow(data.features[0].properties['COMID'])
                         } else {
                             console.log('No features where you clicked so you got an error ' + data);
@@ -111,53 +111,33 @@ function getDrainageLines(layername) {
     })
 }
 
-function getWarningPoints(layername) {
-    let return_layers = [];
+function getWarningPoints(layername, rp) {
+    let clustergroup = L.markerClusterGroup();
     let url = 'https://tethys.byu.edu/apps/streamflow-prediction-tool/api/GetWarningPoints/';
-
-    let return_periods = [2, 10, 20];
-    for (let i in return_periods) {
-        let rp = return_periods[i];
-        let params = {
-            watershed_name: layername,
-            subbasin_name: 'Continental',
-            return_period: rp,
-        };
-        $.ajax({
-            async: false,
-            headers: {'Authorization': "Token 2d03550b3b32cdfd03a0c876feda690d1d15ad40"},
-            url: url + L.Util.getParamString(params),
-            contentType: 'application/json',
-            success: function (data) {
-                // console.log(data);
-                return_layers.push(
-                    L.vectorGrid.slicer(data, {
-                        rendererFactory: L.svg.tile,
-                        vectorTileLayerStyles: {
-                            sliced: function (properties, zoom) {
-                                // console.log(properties);
-                                return {
-                                    color: 'black',
-                                    radius: .5,
-                                    weight: 0,
-                                    opacity: 1,
-                                    stroke: true,
-                                    fill: true,
-                                    fillColor:
-                                        rp === 2 ? '#eaeb00' :
-                                            rp === 10 ? '#ff1600' :
-                                                rp === 20 ? '#730280' :
-                                                    rgb(0, 0, 0, 0),
-                                    fillOpacity: 1,
-                                }
-                            }
-                        },
-                    })
-                )
-            },
-        });
-    }
-    return L.layerGroup(return_layers)
+    let params = {watershed_name: layername, subbasin_name: 'Continental', return_period: rp,};
+    $.ajax({
+        async: false,
+        headers: {'Authorization': "Token 2d03550b3b32cdfd03a0c876feda690d1d15ad40"},
+        url: url + L.Util.getParamString(params),
+        contentType: 'application/json',
+        success: function (data) {
+            for (let point in data.features) {
+                let coords = data.features[point].geometry.coordinates;
+                clustergroup.addLayer(L.circleMarker([coords[1], coords[0]], {
+                    weight: 0,
+                    radius: 6,
+                    fill: true,
+                    fillColor:
+                        rp === 2 ? '#eaeb00' :
+                            rp === 10 ? '#ff1600' :
+                                rp === 20 ? '#730280' :
+                                    rgb(0, 0, 0, 0),
+                    fillOpacity: 1,
+                }));
+            }
+        },
+    });
+    return clustergroup
 }
 
 ////////////////////////////////////////////////////////////////////////  SETUP THE MAP
@@ -174,30 +154,30 @@ if (watersheds.length > 1) {
 }
 let basemapObj = basemaps();
 
-////////////////////////////////////////////////////////////////////////  SETUP THE LAYER ARRAYS
+////////////////////////////////////////////////////////////////////////  SETUP LAYER ARRAYS, ADD LAYERS + CONTROLS
 let warningpt_layers = [];
 let drainage_layers = [];
 let catchment_layers = [];
+let currentlayers = {};
 for (let i in watersheds) {
     let name = watersheds[i].name;
-    warningpt_layers.push([name + ' Warning Points', getWarningPoints(name)]);
+    warningpt_layers.push([name + ' 2yr Warning Points', getWarningPoints(name, 2)]);
+    warningpt_layers.push([name + ' 10yr Warning Points', getWarningPoints(name, 10)]);
+    warningpt_layers.push([name + ' 20yr Warning Points', getWarningPoints(name, 20)]);
     drainage_layers.push([name + ' Drainage Lines', getDrainageLines(watersheds[i]['gs_drainageline'])]);
     catchment_layers.push([name + ' Catchments', getCatchments(watersheds[i]['gs_catchment'])]);
 }
-
-////////////////////////////////////////////////////////////////////////  ADD CATCHMENT LAYERS AND THE CONTROLS
-let currentlayers = {};
 for (let i in catchment_layers) {
     catchment_layers[i][1].addTo(mapObj);
     currentlayers[catchment_layers[i][0]] = catchment_layers[i][1];
 }
 for (let i in warningpt_layers) {
-    warningpt_layers[i][1].addTo(mapObj);
+    mapObj.addLayer(warningpt_layers[i][1]);
     currentlayers[warningpt_layers[i][0]] = warningpt_layers[i][1];
 }
 let controlsObj = L.control.layers(basemapObj, currentlayers).addTo(mapObj);
 
-////////////////////////////////////////////////////////////////////////  MAP EVENT LISTENERS- MOUSEMOVE, CLICK, ZOOM
+////////////////////////////////////////////////////////////////////////  MAP EVENT LISTENERS- MOUSEMOVE, ZOOM
 let startzoom;
 
 mapObj.on("mousemove", function (event) {
@@ -217,15 +197,8 @@ mapObj.on('zoomend', function (event) {
     }
     // change the layers based on what kind of zoom change happened
     currentlayers = {};
-    // the warning points will stay at all zoom levels
-    for (let i in warningpt_layers) {
-        // todo change this so that the warning points are always added last/show up on top
-        // todo use the setstyle function to make the circles bigger at larger zoom levels
-        currentlayers[warningpt_layers[i][0]] = warningpt_layers[i][1];
-    }
-    if (endzoom >= threshold) {
+    if (endzoom >= threshold) {  // less than threshold to more than threshold -> -catchments +drainage
         $("#map").css('cursor', 'pointer');
-        // started less than threshold and went to more than threshold -> -catchments +drainage
         for (let i in catchment_layers) {
             controlsObj.removeLayer(catchment_layers[i][1]);
             mapObj.removeLayer(catchment_layers[i][1]);
@@ -234,9 +207,8 @@ mapObj.on('zoomend', function (event) {
             drainage_layers[i][1].addTo(mapObj);
             currentlayers[drainage_layers[i][0]] = drainage_layers[i][1];
         }
-    } else {
+    } else {  // more than threshold to less than threshold -> +catchments -drainage
         $("#map").css('cursor', '');
-        // started more than threshold and went to less than threshold -> +catchments -drainage
         for (let i in catchment_layers) {
             catchment_layers[i][1].addTo(mapObj);
             currentlayers[catchment_layers[i][0]] = catchment_layers[i][1];
@@ -247,6 +219,12 @@ mapObj.on('zoomend', function (event) {
         }
     }
     // put the map controls back on the map after changing all the layers
+    for (let i in warningpt_layers) {
+        controlsObj.removeLayer(warningpt_layers[i][1]);
+        mapObj.removeLayer(warningpt_layers[i][1]);
+        warningpt_layers[i][1].addTo(mapObj);  // remove and re-add to keep it on the top
+        currentlayers[warningpt_layers[i][0]] = warningpt_layers[i][1];
+    }
     mapObj.removeControl(controlsObj);
     controlsObj = L.control.layers(basemapObj, currentlayers).addTo(mapObj)
 });
@@ -257,27 +235,17 @@ let values = {highres: [], max: [], mean: [], min: [], std_dev_range_lower: [], 
 
 function titleCase(str) {
     str = str.toLowerCase().split('_');
-
     for (let i = 0; i < str.length; i++) {
         str[i] = str[i].charAt(0).toUpperCase() + str[i].slice(1);
     }
-
     return str.join(' ');
 }
 
 function getstreamflow(comid) {
-    console.log('started with comid ' + comid);
-    $("#chart_modal").modal('show');
-    let watershed = "north_america";
+    let watershed = "north_america"; // todo make this change every time
     let subbasin = "continental";
     let url = 'https://tethys.byu.edu/apps/streamflow-prediction-tool/api/GetForecast/';
-    let params = {
-        watershed_name: watershed,
-        subbasin_name: subbasin,
-        reach_id: comid,
-        forecast_folder: 'most_recent',
-        return_format: 'csv'
-    };
+    let params = {watershed_name: watershed, subbasin_name: subbasin, reach_id: comid, return_format: 'csv'};
     $.ajax({
         type: 'GET',
         async: false,
@@ -289,7 +257,6 @@ function getstreamflow(comid) {
             if ($('#long-term-chart').length) {
                 Plotly.purge('long-term-chart');
             }
-
             let allLines = data.split('\n');
             let headers = allLines[0].split(',');
 
@@ -299,7 +266,6 @@ function getstreamflow(comid) {
                 if (headers.includes('high_res (m3/s)')) {
                     dates.highres.push(data[0]);
                     values.highres.push(data[1]);
-
                     if (data[2] !== 'nan') {
                         dates.dates.push(data[0]);
                         values.max.push(data[2]);
@@ -377,8 +343,8 @@ function getstreamflow(comid) {
 
             Plotly.newPlot("long-term-chart", data, layout);
 
-            let index = dates.dates.length - 2;
-            console.log(index);
+            // let index = dates.dates.length - 2;
+            // console.log(index);
             // getreturnperiods(dates.dates[0], dates.dates[index], watershed, subbasin, comid);
 
             dates.highres = [];
@@ -395,11 +361,5 @@ function getstreamflow(comid) {
 }
 
 ////////////////////////////////////////////////////////////////////////  THINGS THAT NEED TO BE DONE STILL
-//todo listeners
-// get historical data (api)
-// other things in the api? the lat/lon chooser?
-// do we still want the change warning points v time option? how do we do that if they're all from the api? actually how does that work now?
-
-//todo
-// maybe style the layers based on user controls
-// if so then regenerate the legend graphic by changing svg colors
+// todo get historical data (api)
+// todo do we still want the change warning points v time option? how do we do that if they're all from the api? actually how does that work now?
